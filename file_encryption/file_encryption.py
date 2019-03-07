@@ -2,6 +2,7 @@
 @author: Team PEMDAS
 """
 import os
+import base64
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives import padding
@@ -12,19 +13,10 @@ CONST_LEN_IV = 16
 CONST_LEN_BLOCK = 128
 
 def main():
-    # Testing encrypt and decrypt w/random message bytes and random key
-    key = b'asdasdasdasdasdasdasdasdasdasdas' # valid key
-    msg = b'this is a RANDOM message'
     
-    # Init encrypt/decrypt
-    cipher, iv = Myencrypt(msg, key) # First encrypt
-    message = Mydecrypt(cipher, iv, key) # Then decrypt
-    
-    print(msg) # Print original message (binary)
-    print()
-    print(cipher) # Print encrypted message
-    print()
-    print(message) # Print decrypted message
+    C, IV, key, ext = MyfileEncrypt("test.txt")
+    decrypt = MyfileDecrypt(C, IV, key)
+    print("Decrypted: " + str(decrypt))
 
 def Myencrypt(message, key):
     # Prompt error if key < 32 bytes
@@ -51,6 +43,7 @@ def Myencrypt(message, key):
         return (C, IV)
 
 def Mydecrypt(C, IV, key):
+    # Prompt error if key < 32 bytes
     if len(key) < CONST_LEN_KEY:
         print("[!] Error. Key must be 32 bytes. Try again. [!]")
         return None
@@ -70,5 +63,28 @@ def Mydecrypt(C, IV, key):
         
         # Return plaintext message (M)
         return M
+
+def MyfileEncrypt(filepath):
+    # Generate Key and IV
+    key = os.urandom(CONST_LEN_KEY)
     
+    # Get file extension
+    name, ext = os.path.splitext(filepath)
+    
+    # Open File
+    mode = "rb" # Set to read bits
+    with open(filepath, mode) as file:
+        M = base64.b64encode(file.read())
+    
+    C, IV = Myencrypt(M, key)
+    
+    print("Message: " + str(M))
+    print("Cipher: " + str(C))
+    
+    return C, IV, key, ext
+
+def MyfileDecrypt(C, IV, key):
+    # Call encryption for entire message, CBC does block cipher on its own.
+    return Mydecrypt(C, IV, key)
+
 if __name__ == "__main__": main()
