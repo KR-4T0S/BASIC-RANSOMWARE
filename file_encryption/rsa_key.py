@@ -20,6 +20,7 @@ def haskeys():
     # Check for rsa_key_public.pem and rsa_key_private.pem in program root dir
     if not os.path.isfile(CONST_KEY_PRIVATE_PATH) or not os.path.isfile(CONST_KEY_PUBLIC_PATH):
         print("Missing keys.")
+        print("[!] Keys will be generated [!]")
         return False
     else:
         print("Public and Private keys exist.")
