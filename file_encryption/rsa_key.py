@@ -47,6 +47,7 @@ def keygen():
     # Write serialized key into file
     with open(CONST_KEY_PRIVATE_PATH, 'wb') as file:
         file.write(pem_private)
+        file.close()
     
     ################
     ## PUBLIC KEY ##
@@ -63,5 +64,6 @@ def keygen():
     # Write serialized key into file
     with open(CONST_KEY_PUBLIC_PATH, 'wb') as file:
         file.write(pem_public)
+        file.close()
 
 if __name__ == "__main__": main()
